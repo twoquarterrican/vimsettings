@@ -12,12 +12,13 @@
 " }}}
 
 " pathogen or vundle? {{{
-  let s:using_pathogen = 0
-	let s:using_vundle = 1 - s:using_pathogen
+if !exists("g:package_manager")
+	let g:package_manager = 'vundle'
+end
 " }}}
 
 " pathogen {{{
-if s:using_pathogen
+if g:package_manager == 'pathogen'
 	source $cvim/vimfiles/bundle/vim-pathogen-master/autoload/pathogen.vim
 	execute pathogen#infect()
 	call pathogen#helptags()
@@ -25,11 +26,128 @@ endif
 "}}}
 
 " gmarik/vundle {{{
-if s:using_vundle==1
+if g:package_manager == 'vundle'
+	function! Maybe_bundle(plugin_name)
+		if index(g:plugin_blacklist, plugin_name) == -1
+			execute 'Bundle ' . plugin_name
+		endif
+	endfunction
+	com! -nargs=+ Maybe_Bundle call Maybe_bundle(<args>)
+	" snippets
+	Maybe_Bundle 'UltiSnips' 
+
+	" let vundle manage vundle
+	Maybe_Bundle 'gmarik/vundle' 
+
+	" Debugger for vim scripts
+	Maybe_Bundle 'Decho' 
+
+	" <Leader>ig to toggle indent guides
+	Maybe_Bundle 'nathanaelkane/vim-indent-guides' 
+
+	" AutoComplPop is on bitbucket'
+	Maybe_Bundle 'AutoComplPop' 
+
+	" automatically insert other delimiter
+	Maybe_Bundle 'Raimondi/delimitMate' 
+
+	" full path fuzzy finder for files, buffers, mru, tags
+	Maybe_Bundle 'kien/ctrlp.vim' 
+
+	" file tree viewer
+	Maybe_Bundle 'scrooloose/nerdtree' 
+
+	" A vim-script library
+	Maybe_Bundle 'L9' 
+
+	" autocompletion
+	Maybe_Bundle 'shougo/neocomplcache'
+
+	" snippet autocomplete for use with neocomplcache
+	Maybe_Bundle 'shougo/neosnippet'
+
+	" easy commenting
+	Maybe_Bundle 'scrooloose/nerdcommenter'
+	Maybe_Bundle 'tomtom/tcomment_vim' 
+
+	" relative line numbers
+	Maybe_Bundle 'myusuf3/numbers.vim' 
+
+	" an amalgamation of crap tpope uses for editing runtime files
+	Maybe_Bundle 'tpope/vim-scriptease' 
+
+	" tab completion
+	Maybe_Bundle 'ervandew/supertab' 
+
+	" coffee script support
+	Maybe_Bundle 'kchmck/vim-coffee-script' 
+
+	" beautiful colors
+	Maybe_Bundle 'altercation/vim-colors-solarized' 
+
+	" <Leader><Leader>f then <character> finds all occurences in front
+	Maybe_Bundle 'Lokaltog/vim-easymotion' 
+
+	" tpope's Git support for vim
+	Maybe_Bundle 'tpope/vim-fugitive' 
+
+	" the huge latex plugin for vim.  jcf has up-to-date mirror
+	Maybe_Bundle 'jcf/vim-latex' 
+	Maybe_Bundle 'git://vim-latex.git.sourceforge.net/gitroot/vim-latex/vim-latex (read-only)'
+
+	" otl files
+	Maybe_Bundle 'vimoutliner/vimoutliner' 
+
+	" tpope again
+	Maybe_Bundle 'tpope/vim-rails' 
+	Maybe_Bundle 'tpope/vim-surround' 
+	Maybe_Bundle 'tpope/vim-ragtag' 
+	
+	" my wrapper around vimtweaks
+	Maybe_Bundle 'twoquarterrican/vim-transparency' 
+
+	" checking coffee-script files and other things as well
+	Maybe_Bundle 'scrooloose/syntastic' 
+
+	" supposedly usurps all functionality of acp, supertab and NeoComplCache
+	Maybe_Bundle 'Valloric/YouCompleteMe' 
+
+	" better PHP support
+	Maybe_Bundle 'spf13/PIV' 
+	let g:plugin_blacklist_common = []
+
+	"this does not work for some reason
+	call add(g:plugin_blacklist_common, 'git://vim-latex.git.sourceforge.net/gitroot/vim-latex/vim-latex (read-only)')
+
+	" stuff I don't want right now {{{
+	let s:plugins_i_do_not_want_right_now = [
+		'Decho',
+		'AutoComplPop',
+		'shougo/neocomplcache',
+		'shougo/neosnippet',
+		'scrooloose/nerdcommenter',
+		'ervandew/supertab'
+		]
+	call extend(g:plugin_blacklist_common, s:plugins_i_do_not_want_right_now)
+	" }}}
+	
+	function! s:Integrate_plugin_whitelist()
+		if !exists("g:plugin_blacklist_local")
+			let g:plugin_blacklist_local = []
+		endif
+		if !exists("g:plugin_blacklist_common")
+			let g:plugin_blacklist_common = []
+		endif
+		let g:plugin_whitelist = []
+
+	endfunction
+
+	call Integrate_plugin_whitelist()
+	
   set nocompatible
 	command! -bang BundleInstallWin call Shellslash_off('BundleInstall<bang>')
 	command! -bang BundleCleanWin call Shellslash_off('BundleInstall<bang>')
-	function! Shellslash_off(code)
+	function! Shellslash_off(code) " {{{
 		let sav_shellslash = &shellslash
 		set noshellslash
 		execute a:code
@@ -37,102 +155,15 @@ if s:using_vundle==1
 		let &shellslash = sav_shellslash
 		unlet sav_shellslash
 	endf
+	" }}}
 	filetype off
 
-	set rtp+=$cvim/vimfiles/bundle/vundle
+	set rtp+=$HOME/.vim/bundle/vundle
 	call vundle#rc()
 	
-	" snippets
-	Bundle 'UltiSnips'
-
-	" let vundle manage vundle
-	Bundle 'gmarik/vundle'
-
-	" Debugger for vim scripts
-	" Bundle 'Decho'
-
-	" <Leader>ig to toggle indent guides
-	Bundle 'nathanaelkane/vim-indent-guides'
-
-	" AutoComplPop is on bitbucket'
-	" Bundle 'AutoComplPop'
-
-	" automatically insert other delimiter
-	Bundle 'Raimondi/delimitMate'
-
-	" full path fuzzy finder for files, buffers, mru, tags
-	Bundle 'kien/ctrlp.vim'
-
-	" file tree viewer
-	Bundle 'scrooloose/nerdtree'
-
-	" A vim-script library
-	Bundle 'L9'
-
-	" autocompletion
-	"'shougo/neocomplcache'
-
-	" snippet autocomplete for use with neocomplcache
-	"'shougo/neosnippet'
-
-	" easy commenting
-	"'scrooloose/nerdcommenter'
-	Bundle 'tomtom/tcomment_vim'
-
-	" relative line numbers
-	Bundle 'myusuf3/numbers.vim'
-
-	" an amalgamation of crap tpope uses for editing runtime files
-	Bundle 'tpope/vim-scriptease'
-
-	" tab completion
-	" Bundle 'ervandew/supertab'
-
-	" coffee script support
-	Bundle 'kchmck/vim-coffee-script'
-
-	" beautiful colors
-	Bundle 'altercation/vim-colors-solarized'
-
-	" <Leader><Leader>f then <character> finds all occurences in front
-	Bundle 'Lokaltog/vim-easymotion'
-
-	" tpope's Git support for vim
-	Bundle 'tpope/vim-fugitive'
-
-	" the huge latex plugin for vim.  jcf has up-to-date mirror
-	Bundle 'jcf/vim-latex'
-	"this does not work for some reason
-	"Bundle 'git://vim-latex.git.sourceforge.net/gitroot/vim-latex/vim-latex (read-only)'
-
-	" otl files
-	Bundle 'vimoutliner/vimoutliner'
-
-	" tpope again
-	Bundle 'tpope/vim-rails'
-	Bundle 'tpope/vim-surround'
-	
-	" my wrapper around vimtweaks
-	Bundle 'twoquarterrican/vim-transparency'
-
-	" checking coffee-script files and other things as well
-	Bundle 'scrooloose/syntastic'
-
-	" supposedly usurps all functionality of acp, supertab and NeoComplCache
-	Bundle 'Valloric/YouCompleteMe'
 endif
 
 " }}} vundle configuration
-
-" check that variables are defined {{{
-if !(exists("$BACKUPDIR"))
-	echoerr("please define environment variable $BACKUPDIR in .vimrc")
-endif
-
-if !(exists("$LATEXOUTPUT"))
-	echoerr("please define environment variable $LATEXOUTPUT in .vimrc")
-endif
-" }}}
 
 " Filetype, nocompatible, etc. {{{
 set nocompatible | filetype indent plugin on | syn on
@@ -144,19 +175,26 @@ set wildignore+=*.jpg
 "}}}
 
 " backup and history (set $BACKUPDIR in .vimrc) {{{
-set backupdir=$BACKUPDIR
+if exists("$BACKUPDIR")
+	set backupdir=$BACKUPDIR
+endif
 set nobackup
-set history=1000
+set history=100
 " locations for swap files, in order of preference
-set directory=~/tmp/swap
+set noswapfile
+set directory=
 "}}}
 
 " User interface {{{
 
-imap <Leader>c <Esc>bg~wea
+imap <Leader>a <Esc>A
+imap <Leader>c <Esc>bgUwea
 
 " always set the local directory to be the directory of the current file
-autocmd BufEnter * execute 'lcd %:p:h'
+augroup change_local_directory
+	au!
+	autocmd BufEnter * execute 'lcd %:p:h'
+augroup END
 
 "completion in the command line: first tab hit will complete as much as
 "possible, the second tab hit will provide a list, the third and subsequent
@@ -317,7 +355,7 @@ let savevers_dirs=&backupdir
 
 " a vim option, but savevers won't work unless patchmode is set
 set patchmode=.clean
-let savevers_max=99
+let savevers_max=9
 
 " copied these settings from savevers script web site
 execute "set backupskip+=*" . &patchmode
@@ -345,6 +383,10 @@ if &rtp =~ "vim-latex"
 endif
 
 if &rtp =~ "LaTeX-Box"
+	if !exists("$LATEXOUTPUT")
+		echoerr "env variable $LATEXOUTPUT not defined"
+		finish
+	endif
 	let g:vim_program=shellescape($VIMRUNTIME.'/gvim.exe')
 	let g:LatexBox_Folding=1
 	let g:LatexBox_fold_envs=1

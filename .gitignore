@@ -5,6 +5,7 @@
 downloaded_plugins
 vimfiles/bundle
 vimfiles/unbundle
+*.clean
 
 #################
 ## Eclipse
